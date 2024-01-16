@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34408.163
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mojang.Api.Skins", "Mojang.Api.Skins\Mojang.Api.Skins.csproj", "{54A58679-4621-48F2-8761-D68BA315DE05}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mojang.Api.Skins.Test", "Mojang.Api.Skins.Test\Mojang.Api.Skins.Test.csproj", "{F31804BB-ACB3-448E-98E5-E92696DF933D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{54A58679-4621-48F2-8761-D68BA315DE05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54A58679-4621-48F2-8761-D68BA315DE05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54A58679-4621-48F2-8761-D68BA315DE05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54A58679-4621-48F2-8761-D68BA315DE05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F31804BB-ACB3-448E-98E5-E92696DF933D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F31804BB-ACB3-448E-98E5-E92696DF933D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F31804BB-ACB3-448E-98E5-E92696DF933D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F31804BB-ACB3-448E-98E5-E92696DF933D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1CD77BB2-8F4B-4C5F-9C96-E626243B460D}
+	EndGlobalSection
+EndGlobal
