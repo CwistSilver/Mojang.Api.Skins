@@ -12,7 +12,10 @@ Mojang.Api.Skins is a .NET library designed to interact with the Mojang API and 
 - **Smart Texture Storage**: The default cache identifies and stores unique textures only once, even when multiple players share the same texture, saving significant storage space.
 - **Texture Processing**: Extract and combine specific parts of skins and capes, enabling detailed texture manipulation.
 - **'Dependency Injection Support'**: Easily integrate **'Mojang.Api.Skins'** with .NET Dependency Injection systems, allowing for streamlined management and usage within your projects.
- 
+
+## Godot Showcase
+Experience **'Mojang.Api.Skins'** in action with the [Godot](https://github.com/godotengine/godot) Showcase. This demonstration project, named **'Mojang.Api.Skins.Demo.Godot'**, illustrates the practical application of our .NET library in a Godot environment. It demonstrates real-time rendering of Minecraft skins and capes on 3D models, offering an interactive experience for users. This showcase highlights the versatility and user-friendly nature of our library. For a hands-on experience and to learn more, visit the **'Mojang.Api.Skins.Demo.Godot'** [repository](https://github.com/CwistSilver/Mojang.Api.Skins.Demo.Godot).
+
 ## Caching
 Mojang.Api.Skins includes a versatile caching system, enhancing performance by reducing API calls and storing data locally.
 
