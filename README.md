@@ -2,7 +2,7 @@
 <img width="160" height="auto" src="icon.png">
 
 [![Mojang.Api.Skins](https://img.shields.io/nuget/vpre/Mojang.Api.Skins.svg?cacheSeconds=3600&label=Mojang.Api.Skins%20nuget)](https://www.nuget.org/packages/Mojang.Api.Skins)
-[![NuGet](https://img.shields.io/nuget/dt/Mojang.Api.Skins.svg?label=Downloads)](https://www.nuget.org/packages/Mojang.Api.Skins)
+[![NuGet](https://img.shields.io/nuget/dt/Mojang.Api.Skins.svg?cacheSeconds=3600&label=Downloads)](https://www.nuget.org/packages/Mojang.Api.Skins)
 
 ## Overview
 Mojang.Api.Skins is a .NET library designed to interact with the Mojang API and provides an efficient way to retrieve Minecraft skin and cape textures. It supports retrieving textures by player name or UUID and includes functionality for handling local and remote texture data.
