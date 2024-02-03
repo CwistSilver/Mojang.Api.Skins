@@ -144,7 +144,7 @@ Contributions to Mojang.Api.Skins are welcome. Follow these steps to contribute:
 5. Open a Pull Request
 
 ## Licence
-**'Mojang.Api.Skins'** is licenced under the [MIT licence](licence.md).
+**'Mojang.Api.Skins'** is licenced under the [MIT licence](LICENSE.txt).
 
 ## Dependencies
 **'Mojang.Api.Skins'** utilizes the following packages, which need to be included as dependencies in your project:
