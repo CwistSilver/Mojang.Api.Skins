@@ -11,11 +11,11 @@ public sealed class ApiErrorResponse
     /// The path of the API request that generated the error.
     /// </summary>
     [JsonPropertyName("path")]
-    public string Path { get; init; } = string.Empty;
+    public string Path { get; set; } = string.Empty;
 
     /// <summary>
     /// The error message associated with the API response.
     /// </summary>
     [JsonPropertyName("errorMessage")]
-    public string ErrorMessage { get; init; } = string.Empty;
+    public string ErrorMessage { get; set; } = string.Empty;
 }

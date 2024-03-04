@@ -13,7 +13,29 @@ using Mojang.Api.Skins.Utilities.TextureCropper;
 namespace Mojang.Api.Skins;
 public sealed class SkinsClient : ISkinsClient
 {
-    public ClientOptions Options { get; init; } = ClientOptions.Default;
+    private readonly object _lock = new();
+    private ClientOptions _options = ClientOptions.Default;
+    public ClientOptions Options
+    {
+        get
+        {
+            lock (_lock)
+                return _options;
+        }
+        set
+        {
+            if (value is null)
+                return;
+
+            lock (_lock)
+            {
+                _options = value;
+                _profileInformationRepository.Options = _options;
+                _profilePropertiesRepository.Options = _options;
+                _profileTexturesRepository.Options = _options;
+            }
+        }
+    }
 
     private readonly IProfileInformationRepository _profileInformationRepository;
     private readonly IProfilePropertiesRepository _profilePropertiesRepository;

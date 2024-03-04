@@ -11,7 +11,7 @@ public sealed class ProfileTextureInformation
     /// The timestamp of the texture information, represented as a Unix time in milliseconds.
     /// </summary>
     [JsonPropertyName("timestamp")]
-    public long Timestamp { get; init; }
+    public long Timestamp { get; set; }
 
     /// <summary>
     /// The timestamp as a <see cref="DateTime"/> object.
@@ -24,17 +24,17 @@ public sealed class ProfileTextureInformation
     /// </summary>
     [JsonPropertyName("profileId")]
     [JsonConverter(typeof(JsonUUIDConverter))]
-    public Guid ProfileId { get; init; }
+    public Guid ProfileId { get; set; }
 
     /// <summary>
     /// The name of the player profile.
     /// </summary>
     [JsonPropertyName("profileName")]
-    public string ProfileName { get; init; } = string.Empty;
+    public string ProfileName { get; set; } = string.Empty;
 
     /// <summary>
     /// The textures associated with the player profile.
     /// </summary>
     [JsonPropertyName("textures")]
-    public Textures? Textures { get; init; }
+    public Textures? Textures { get; set; }
 }

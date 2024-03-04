@@ -1,5 +1,6 @@
 ﻿using LiteDB;
 using Mojang.Api.Skins.ImageService.General;
+using System.Text;
 
 namespace Mojang.Api.Skins.Cache;
 
@@ -62,7 +63,7 @@ public sealed class LiteDBCache : ICache
     public async Task CacheImageAsync(string key, byte[] data)
     {
         var imageHash = _imageUtilities.HashImage((ReadOnlySpan<byte>)data.AsSpan());
-        var hexaHash = Convert.ToHexString(imageHash.Span);
+        var hexaHash = ToHexString(imageHash.Span);
         AddImageKey(key, hexaHash);
 
         var imagePath = Path.Combine(_imageCacheDirectory, $"{hexaHash}.png");
@@ -128,6 +129,17 @@ public sealed class LiteDBCache : ICache
         var item = new LiteDBCacheItem { Key = key, Value = hexaHash, LastUpdated = DateTime.UtcNow };
         col.Upsert(item);
     }
+
+    public static string ToHexString(ReadOnlySpan<byte> bytes)
+    {
+        var hex = new StringBuilder(bytes.Length * 2);
+        foreach (byte b in bytes)
+        {
+            hex.AppendFormat("{0:x2}", b);
+        }
+        return hex.ToString();
+    }
+
 
     private string GetCacheDirectory() => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, nameof(Mojang.Api.Skins));
     private class LiteDBCacheItem

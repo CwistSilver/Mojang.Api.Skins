@@ -7,7 +7,7 @@ public class DefaultHttpClientFactory : IHttpClientFactory
 
     static DefaultHttpClientFactory()
     {
-        var handler = new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(1) };
+        var handler = new HttpClientHandler();
         var policyHandler = new PolicyHttpMessageHandler(HttpClientExtension.GetRetryPolicy()) { InnerHandler = handler };
 
         _httpClient = new HttpClient(policyHandler);

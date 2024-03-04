@@ -1,13 +1,29 @@
 ﻿using Mojang.Api.Skins.Data;
 using Mojang.Api.Skins.Data.MojangApi;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace Mojang.Api.Skins.Repository.MinecraftProfileInformation;
 public sealed class ProfileInformationRepository : IProfileInformationRepository
 {
     private const string MinecraftProfilesURL = "https://api.mojang.com/users/profiles/minecraft/{0}";
 
-    public ClientOptions Options { get; set; } = new();
+    private readonly object _lock = new();
+    private ClientOptions _options = new();
+    public ClientOptions Options
+    {
+        get
+        {
+            lock (_lock)
+                return _options;
+        }
+        set
+        {
+            lock (_lock)
+                _options = value;
+        }
+    }
+
 
     private readonly HttpClient _httpClient;
     public ProfileInformationRepository(IHttpClientFactory httpClientFactory) => _httpClient = httpClientFactory.CreateClient(nameof(Skins));
@@ -16,9 +32,13 @@ public sealed class ProfileInformationRepository : IProfileInformationRepository
     {
         string cacheKey = $"ProfileInformation-{playerName}";
 
+
         if (Options.Cache is not null)
         {
-            var cachedPlayerUUID = Options.Cache.Get<Guid>(cacheKey);
+            Guid cachedPlayerUUID;
+            lock (_lock)
+                cachedPlayerUUID = Options.Cache.Get<Guid>(cacheKey);
+
             if (cachedPlayerUUID != default)
                 return new ProfileInformation() { Name = playerName, Id = cachedPlayerUUID };
         }
@@ -27,14 +47,15 @@ public sealed class ProfileInformationRepository : IProfileInformationRepository
 
         if (!response.IsSuccessStatusCode)
         {
-            var errorResponse = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
+            var errorResponse = await response.Content.ReadFromJsonAsync<ApiErrorResponse>().ConfigureAwait(false); ;
             var errorMessage = errorResponse != null ? errorResponse.ErrorMessage : "Unknown error occurred.";
             throw new HttpRequestException(errorMessage);
         }
 
-        var profileInformation = await response.Content.ReadFromJsonAsync<ProfileInformation>();
+        var profileInformation = await response.Content.ReadFromJsonAsync<ProfileInformation>().ConfigureAwait(false);
 
-        Options.Cache?.AddOrSet(cacheKey, profileInformation!.Id);
+        lock (_lock)
+            Options.Cache?.AddOrSet(cacheKey, profileInformation!.Id);
 
         return profileInformation!;
     }

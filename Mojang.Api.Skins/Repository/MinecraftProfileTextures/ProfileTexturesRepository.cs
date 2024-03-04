@@ -13,7 +13,36 @@ public sealed class ProfileTexturesRepository : IProfileTexturesRepository
     private const string TexturesProperty = "textures";
     private const int LegacySkinHeight = 32;
 
-    public ClientOptions Options { get; set; } = new();
+    private readonly SemaphoreSlim _semaphore = new(1, 1);
+    private ClientOptions _options = new();
+
+    public ClientOptions Options
+    {
+        get
+        {
+            _semaphore.Wait();
+            try
+            {
+                return _options;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+        set
+        {
+            _semaphore.Wait();
+            try
+            {
+                _options = value;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+    }
 
 
     private readonly HttpClient _httpClient;
@@ -39,8 +68,16 @@ public sealed class ProfileTexturesRepository : IProfileTexturesRepository
     public SkinData GetSkinLocal(in byte[] skinBytes)
     {
         var textureSize = _imageUtilities.CalculateSize((ReadOnlySpan<byte>)skinBytes.AsSpan());
-        if (Options.ConvertLegacySkin && textureSize.Height == 32)
-            return CreateSkinData(_modernSkinConverter.ConvertToModernSkin(skinBytes));
+        _semaphore.Wait();
+        try
+        {
+            if (_options.ConvertLegacySkin && textureSize.Height == 32)
+                return CreateSkinData(_modernSkinConverter.ConvertToModernSkin(skinBytes));
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
 
         return CreateSkinData(skinBytes);
     }
@@ -58,22 +95,39 @@ public sealed class ProfileTexturesRepository : IProfileTexturesRepository
         byte[]? skinImage;
         if (Options.Cache is not null)
         {
-            skinImage = await Options.Cache!.RetrieveImageAsync(skinKey);
-            if (skinImage is not null)
-                return CreateSkinData(skinImage);
+            await _semaphore.WaitAsync();
+            try
+            {
+                skinImage = await _options.Cache!.RetrieveImageAsync(skinKey);
+                if (skinImage is not null)
+                    return CreateSkinData(skinImage);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
         }
 
         skinImage = await FetchTextureBytes(profileTextureInformation.Textures.Skin.Url!).ConfigureAwait(false);
 
-        if (Options.ConvertLegacySkin)
+        await _semaphore.WaitAsync();
+        try
         {
-            var textureSize = _imageUtilities.CalculateSize((ReadOnlySpan<byte>)skinImage.AsSpan());
-            if (textureSize.Height == LegacySkinHeight)
-                skinImage = _modernSkinConverter.ConvertToModernSkin(skinImage);
-        }
+            if (_options.ConvertLegacySkin)
+            {
+                var textureSize = _imageUtilities.CalculateSize((ReadOnlySpan<byte>)skinImage.AsSpan());
+                if (textureSize.Height == LegacySkinHeight)
+                    skinImage = _modernSkinConverter.ConvertToModernSkin(skinImage);
+            }
 
-        if (Options.Cache is not null)
-            await Options.Cache.CacheImageAsync(skinKey, skinImage);
+
+            if (_options.Cache is not null)
+                await _options.Cache.CacheImageAsync(skinKey, skinImage);
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
 
         var skinData = CreateSkinData(skinImage);
         skinData.TextureUrl = profileTextureInformation.Textures.Skin.Url;
@@ -88,17 +142,34 @@ public sealed class ProfileTexturesRepository : IProfileTexturesRepository
 
         var playerCapeKey = $"{profileTextureInformation.ProfileId}-cape";
         byte[]? cachedCapeBytes;
-        if (Options.Cache is not null)
+
+        await _semaphore.WaitAsync();
+        try
         {
-            cachedCapeBytes = await Options.Cache!.RetrieveImageAsync(playerCapeKey);
-            if (cachedCapeBytes is not null)
-                return CreateCapeData(cachedCapeBytes);
+            if (_options.Cache is not null)
+            {
+                cachedCapeBytes = await _options.Cache!.RetrieveImageAsync(playerCapeKey);
+                if (cachedCapeBytes is not null)
+                    return CreateCapeData(cachedCapeBytes);
+            }
+        }
+        finally
+        {
+            _semaphore.Release();
         }
 
         var capeBytes = await FetchTextureBytes(profileTextureInformation.Textures.Cape.Url!).ConfigureAwait(false);
 
-        if (Options.Cache is not null)
-            await Options.Cache.CacheImageAsync(playerCapeKey, capeBytes);
+        await _semaphore.WaitAsync();
+        try
+        {
+            if (_options.Cache is not null)
+                await _options.Cache.CacheImageAsync(playerCapeKey, capeBytes);
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
 
         var capeData = CreateCapeData(capeBytes);
         capeData.TextureUrl = profileTextureInformation.Textures.Cape.Url;

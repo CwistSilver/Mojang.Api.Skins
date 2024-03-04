@@ -11,12 +11,12 @@ public class TextureData
     /// <summary>
     /// Gets the texture data as a byte array.
     /// </summary>
-    public byte[] TextureBytes { get; init; } = Array.Empty<byte>();
+    public byte[] TextureBytes { get; set; } = Array.Empty<byte>();
 
     /// <summary>
     /// Gets the size of the texture.
     /// </summary>
-    public Size TextureSize { get; init; }
+    public Size TextureSize { get; set; }
 
     private readonly IImageUtilities? _imageUtilities;
     public TextureData(IImageUtilities imageUtilities) => _imageUtilities = imageUtilities;

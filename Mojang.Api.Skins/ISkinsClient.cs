@@ -9,7 +9,7 @@ public interface ISkinsClient
     /// <summary>
     /// Client configuration options.
     /// </summary>
-    ClientOptions Options { get; init; }
+    ClientOptions Options { get; set; }
 
     /// <summary>
     /// Asynchronously retrieves the skin data for a specified player by name.

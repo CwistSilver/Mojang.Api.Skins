@@ -16,10 +16,7 @@ public sealed class SkiaImageUtilities : IImageUtilities
         for (int i = 0; i < inputs.Count; i++)
         {
             using var stream = new MemoryStream(inputs[i]);
-            var bitmap = SKBitmap.Decode(stream);
-            if (bitmap == null)
-                throw new InvalidOperationException($"Unable to decode image at index {i}.");
-
+            var bitmap = SKBitmap.Decode(stream) ?? throw new InvalidOperationException($"Unable to decode image at index {i}.");
             bitmaps.Add(bitmap);
 
             int potentialWidth = (int)positions[i].X + bitmap.Width;
@@ -208,6 +205,13 @@ public sealed class SkiaImageUtilities : IImageUtilities
 
         using var bitmap = SKBitmap.Decode(fileBytes) ?? throw new InvalidOperationException("Unable to decode the image.");
 
-        return SHA256.HashData(bitmap.GetPixelSpan());
+        using var sha256 = SHA256.Create();
+        byte[] hash = new byte[sha256.HashSize / 8];
+        bool success = sha256.TryComputeHash(bitmap.GetPixelSpan(), hash, out int bytesWritten);
+
+        if (!success)
+            throw new InvalidOperationException("Unable to compute hash");
+
+        return new Memory<byte>(hash);
     }
 }

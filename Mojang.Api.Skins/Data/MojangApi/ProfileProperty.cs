@@ -11,13 +11,13 @@ public sealed class ProfileProperty
     /// The name of the property.
     /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; init; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// The value of the property.
     /// </summary>
     [JsonPropertyName("value")]
-    public string Value { get; init; } = string.Empty;
+    public string Value { get; set; } = string.Empty;
 
     public override string ToString() => $"Name: {Name} Value: {Value}";
 }

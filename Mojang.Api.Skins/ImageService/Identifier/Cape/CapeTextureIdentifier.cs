@@ -80,7 +80,7 @@ public sealed class CapeTextureIdentifier : ICapeTextureIdentifier
 
     public string? FindName(ReadOnlySpan<byte> imageHash)
     {
-        foreach (var capeIdentity in CollectionsMarshal.AsSpan(_capeIdentitiesList))
+        foreach (var capeIdentity in _capeIdentitiesList)
         {
             if (imageHash.SequenceEqual(capeIdentity.Item1.Span))
                 return capeIdentity.Item2;

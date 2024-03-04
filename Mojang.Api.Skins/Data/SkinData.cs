@@ -10,7 +10,7 @@ public sealed class SkinData : TextureData
     /// <summary>
     /// Gets the type of the skin.
     /// </summary>
-    public SkinType SkinType { get; init; }
+    public SkinType SkinType { get; set; }
     public string? TextureUrl { get; set; }
 
     private readonly ITextureCropper? _skinPartCropper;

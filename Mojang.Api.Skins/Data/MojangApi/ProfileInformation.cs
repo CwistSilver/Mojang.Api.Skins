@@ -13,13 +13,13 @@ public class ProfileInformation
     /// </summary>
     [JsonPropertyName("id")]
     [JsonConverter(typeof(JsonUUIDConverter))]
-    public Guid Id { get; init; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// The name of the player.
     /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; init; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
 
     public override string ToString() => $"Player-UUID: {Id:N} Name: {Name}";
 

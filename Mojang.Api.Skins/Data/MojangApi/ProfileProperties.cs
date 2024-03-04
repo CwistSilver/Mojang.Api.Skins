@@ -10,11 +10,11 @@ public sealed class ProfileProperties : ProfileInformation
     /// A collection of properties associated with the player profile.
     /// </summary>
     [JsonPropertyName("properties")]
-    public ProfileProperty[]? Properties { get; init; }
+    public ProfileProperty[]? Properties { get; set; }
 
     /// <summary>
     /// A collection of actions associated with the player profile.
     /// </summary>
     [JsonPropertyName("profileActions")]
-    public object[]? ProfileActions { get; init; }
+    public object[]? ProfileActions { get; set; }
 }

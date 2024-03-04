@@ -9,7 +9,7 @@ public sealed class SkinPartData : TextureData
     /// <summary>
     /// The specific part of the skin represented by this texture data.
     /// </summary>
-    public SkinPart SkinPart { get; init; }
+    public SkinPart SkinPart { get; set; }
 
     public SkinPartData(IImageUtilities imageUtilities) : base(imageUtilities) { }
 }

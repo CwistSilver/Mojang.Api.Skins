@@ -7,7 +7,21 @@ public sealed class ProfilePropertiesRepository : IProfilePropertiesRepository
 {
     private const string MinecraftProfilePropertiesURL = "https://sessionserver.mojang.com/session/minecraft/profile/{0}";
 
-    public ClientOptions Options { get; set; } = new();
+    private readonly object _lock = new();
+    private ClientOptions _options = new();
+    public ClientOptions Options
+    {
+        get
+        {
+            lock (_lock)
+                return _options;
+        }
+        set
+        {
+            lock (_lock)
+                _options = value;
+        }
+    }
 
 
     private readonly HttpClient _httpClient;
@@ -19,7 +33,10 @@ public sealed class ProfilePropertiesRepository : IProfilePropertiesRepository
 
         if (Options.Cache is not null)
         {
-            var cachedProfileProperties = Options.Cache.Get<ProfileProperties>(cacheKey);
+            ProfileProperties? cachedProfileProperties;
+            lock (_lock)
+                cachedProfileProperties = Options.Cache.Get<ProfileProperties>(cacheKey);
+
             if (cachedProfileProperties is not null)
                 return cachedProfileProperties;
         }
@@ -34,7 +51,8 @@ public sealed class ProfilePropertiesRepository : IProfilePropertiesRepository
 
         var profileProperties = await response.Content.ReadFromJsonAsync<ProfileProperties>();
 
-        Options.Cache?.AddOrSet(cacheKey, profileProperties!);
+        lock (_lock)
+            Options.Cache?.AddOrSet(cacheKey, profileProperties!);
 
         return profileProperties!;
     }
