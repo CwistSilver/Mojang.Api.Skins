@@ -1,5 +1,5 @@
 # Mojang.Api.Skins
-<img width="160" height="auto" src="icon.png">
+<img width="160" height="auto" src="https://github.com/CwistSilver/Mojang.Api.Skins/raw/main/icon.png">
 
 [![Mojang.Api.Skins](https://img.shields.io/nuget/vpre/Mojang.Api.Skins.svg?cacheSeconds=3600&label=Mojang.Api.Skins%20nuget)](https://www.nuget.org/packages/Mojang.Api.Skins)
 [![NuGet](https://img.shields.io/nuget/dt/Mojang.Api.Skins.svg?cacheSeconds=3600&label=Downloads)](https://www.nuget.org/packages/Mojang.Api.Skins)
