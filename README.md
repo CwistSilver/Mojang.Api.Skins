@@ -150,8 +150,8 @@ Contributions to Mojang.Api.Skins are welcome. Follow these steps to contribute:
 **'Mojang.Api.Skins'** utilizes the following packages, which need to be included as dependencies in your project:
 
 - [LiteDB](https://github.com/mbdavid/LiteDB)
-- [Microsoft.Extensions.DependencyInjection.Abstractions](https://github.com/dotnet/runtime/tree/main/src/libraries/Microsoft.Extensions.DependencyInjection.Abstractions)
 - [Microsoft.Extensions.Http](https://github.com/dotnet/runtime/tree/main/src/libraries/Microsoft.Extensions.Http)
 - [Microsoft.Extensions.Http.Polly](https://www.nuget.org/packages/Microsoft.Extensions.Http.Polly)
-- [Polly](https://github.com/App-vNext/Polly)
 - [SkiaSharp](https://github.com/mono/SkiaSharp)
+- [System.Net.Http.Json](https://www.nuget.org/packages/System.Net.Http.Json)
+- [System.Text.Json](https://www.nuget.org/packages/System.Text.Json)
