@@ -111,7 +111,7 @@ public class LiteDBCacheTests : IDisposable
         foreach (var directory in directories)
         {
             Assert.Empty(Directory.GetFiles(directory));
-        }    
+        }
     }
 
     [Fact]

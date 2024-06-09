@@ -44,12 +44,12 @@ public sealed class ProfilePropertiesRepository : IProfilePropertiesRepository
         var response = await _httpClient.GetAsync(string.Format(MinecraftProfilePropertiesURL, playerUUID.ToString("N"))).ConfigureAwait(false);
         if (!response.IsSuccessStatusCode)
         {
-            var errorResponse = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
+            var errorResponse = await response.Content.ReadFromJsonAsync(JsonContext.Default.ApiErrorResponse).ConfigureAwait(false);
             var errorMessage = errorResponse != null ? errorResponse.ErrorMessage : "Unknown error occurred.";
             throw new HttpRequestException(errorMessage);
         }
 
-        var profileProperties = await response.Content.ReadFromJsonAsync<ProfileProperties>();
+        var profileProperties = await response.Content.ReadFromJsonAsync(JsonContext.Default.ProfileProperties).ConfigureAwait(false);
 
         lock (_lock)
             Options.Cache?.AddOrSet(cacheKey, profileProperties!);

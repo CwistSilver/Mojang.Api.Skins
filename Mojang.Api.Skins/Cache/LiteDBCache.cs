@@ -58,7 +58,7 @@ public sealed class LiteDBCache : ICache
         }
 
         return (T)result.Value;
-    } 
+    }
 
     public async Task CacheImageAsync(string key, byte[] data)
     {

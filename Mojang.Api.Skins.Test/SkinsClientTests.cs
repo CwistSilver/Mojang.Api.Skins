@@ -14,19 +14,19 @@ using System.Drawing;
 namespace Mojang.Api.Skins.Test;
 public class SkinsClientTests
 {
-    private ProfileProperties _profileProperties = new ProfileProperties
+    private readonly ProfileProperties _profileProperties = new()
     {
         Name = "FakePlayer",
         Id = Guid.NewGuid(),
-        Properties = new ProfileProperty[] {
+        Properties = [
             new ProfileProperty() {
                 Name = "textures",
                 Value = "ewogICJ0aW1lc3RhbXAiIDogMTcwNTI0MDM4NTE1MSwKICAicHJvZmlsZUlkIiA6ICJlZGM2MzE5YjQ5NjM0ZDhmYmZkNTI1N2QxNzg5N2I0NSIsCiAgInByb2ZpbGVOYW1lIiA6ICJDd2lzdFNpbHYzciIsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS83ZTNjNWQ1MTM4MTE1YTRmNjBjYTRmMGMwMTEyZjk3NmFmYmJjZjk3MGNmY2Y5ZWM1NDk0NDMyNTQ1Njg0NWIxIgogICAgfSwKICAgICJDQVBFIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS8yMzQwYzBlMDNkZDI0YTExYjE1YThiMzNjMmE3ZTllMzJhYmIyMDUxYjI0ODFkMGJhN2RlZmQ2MzVjYTdhOTMzIgogICAgfQogIH0KfQ=="
             }
-        }
+        ]
     };
-    private SkinData _defaultSkinData = new SkinData { SkinType = SkinType.Slim, TextureBytes = new byte[] { 1, 2, 3, 4, 5, 6 }, TextureSize = new Size(64, 64) };
-    private CapeData _defaultCapeData = new CapeData { CapeName = "TestCape", TextureBytes = new byte[] { 1, 2, 3 }, TextureSize = new Size(64, 32) };
+    private readonly SkinData _defaultSkinData = new() { SkinType = SkinType.Slim, TextureBytes = [1, 2, 3, 4, 5, 6], TextureSize = new Size(64, 64) };
+    private readonly CapeData _defaultCapeData = new() { CapeName = "TestCape", TextureBytes = [1, 2, 3], TextureSize = new Size(64, 32) };
 
 
     private readonly Mock<IProfileInformationRepository> _profileInformationRepositoryMock;
@@ -47,7 +47,7 @@ public class SkinsClientTests
         _textureCropperMock = new Mock<ITextureCropper>();
         _modernSkinConverterMock = new Mock<IModernSkinConverter>();
         _skinTypeIdentifierMock = new Mock<ISkinTypeIdentifier>();
-    }   
+    }
 
     [Fact]
     public async Task GetAsync_ByName_ReturnsValidPlayerData()
@@ -140,5 +140,5 @@ public class SkinsClientTests
         _profileTexturesRepositoryMock.Verify(repo => repo.GetCapeLocal(_defaultCapeData.TextureBytes), Times.Once());
     }
 
-    private SkinsClient CreateClient() => new SkinsClient(_profileInformationRepositoryMock.Object, _profilePropertiesRepositoryMock.Object, _profileTexturesRepositoryMock.Object, _capeTextureIdentifierMock.Object, _imageUtilitiesMock.Object, _textureCropperMock.Object, _modernSkinConverterMock.Object, _skinTypeIdentifierMock.Object);
+    private SkinsClient CreateClient() => new(_profileInformationRepositoryMock.Object, _profilePropertiesRepositoryMock.Object, _profileTexturesRepositoryMock.Object, _capeTextureIdentifierMock.Object, _imageUtilitiesMock.Object, _textureCropperMock.Object, _modernSkinConverterMock.Object, _skinTypeIdentifierMock.Object);
 }

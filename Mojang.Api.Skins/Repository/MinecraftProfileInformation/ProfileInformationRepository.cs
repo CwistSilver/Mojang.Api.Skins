@@ -1,7 +1,6 @@
 ﻿using Mojang.Api.Skins.Data;
 using Mojang.Api.Skins.Data.MojangApi;
 using System.Net.Http.Json;
-using System.Text.Json;
 
 namespace Mojang.Api.Skins.Repository.MinecraftProfileInformation;
 public sealed class ProfileInformationRepository : IProfileInformationRepository
@@ -47,12 +46,12 @@ public sealed class ProfileInformationRepository : IProfileInformationRepository
 
         if (!response.IsSuccessStatusCode)
         {
-            var errorResponse = await response.Content.ReadFromJsonAsync<ApiErrorResponse>().ConfigureAwait(false); ;
+            var errorResponse = await response.Content.ReadFromJsonAsync(JsonContext.Default.ApiErrorResponse).ConfigureAwait(false);
             var errorMessage = errorResponse != null ? errorResponse.ErrorMessage : "Unknown error occurred.";
             throw new HttpRequestException(errorMessage);
         }
 
-        var profileInformation = await response.Content.ReadFromJsonAsync<ProfileInformation>().ConfigureAwait(false);
+        var profileInformation = await response.Content.ReadFromJsonAsync(JsonContext.Default.ProfileInformation).ConfigureAwait(false);
 
         lock (_lock)
             Options.Cache?.AddOrSet(cacheKey, profileInformation!.Id);

@@ -1,5 +1,4 @@
 ﻿using Mojang.Api.Skins.ImageService.General;
-using System.Runtime.InteropServices;
 
 namespace Mojang.Api.Skins.ImageService.Identifier.Cape;
 public sealed class CapeTextureIdentifier : ICapeTextureIdentifier

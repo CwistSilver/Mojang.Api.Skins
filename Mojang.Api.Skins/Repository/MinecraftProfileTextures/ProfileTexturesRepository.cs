@@ -221,7 +221,7 @@ public sealed class ProfileTexturesRepository : IProfileTexturesRepository
         var base64Bytes = Convert.FromBase64String(texturesProperty.Value);
         var decodedString = System.Text.Encoding.UTF8.GetString(base64Bytes);
 
-        var profileTextureInformation = JsonSerializer.Deserialize<ProfileTextureInformation>(decodedString);
+        var profileTextureInformation = JsonSerializer.Deserialize(decodedString, JsonContext.Default.ProfileTextureInformation);
 
         return profileTextureInformation ?? throw new InvalidOperationException("Failed to deserialize the profile texture information.");
     }
