@@ -1,5 +1,4 @@
-﻿using Mojang.Api.Skins.Data;
-using Mojang.Api.Skins.Data.MojangApi;
+﻿using Mojang.Api.Skins.Data.MojangApi;
 
 namespace Mojang.Api.Skins.Repository.MinecraftProfileInformation;
 /// <summary>
@@ -7,11 +6,6 @@ namespace Mojang.Api.Skins.Repository.MinecraftProfileInformation;
 /// </summary>
 public interface IProfileInformationRepository
 {
-    /// <summary>
-    /// Options for client configurations.
-    /// </summary>
-    ClientOptions Options { get; set; }
-
     /// <summary>
     /// Asynchronously retrieves the profile information for a given player name.
     /// </summary>

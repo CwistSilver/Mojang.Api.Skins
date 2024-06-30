@@ -11,7 +11,7 @@ public class TextureData
     /// <summary>
     /// Gets the texture data as a byte array.
     /// </summary>
-    public byte[] TextureBytes { get; set; } = Array.Empty<byte>();
+    public byte[] TextureBytes { get; set; } = [];
 
     /// <summary>
     /// Gets the size of the texture.

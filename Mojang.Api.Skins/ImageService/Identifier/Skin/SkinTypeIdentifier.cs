@@ -2,13 +2,9 @@
 using Mojang.Api.Skins.ImageService.General;
 
 namespace Mojang.Api.Skins.ImageService.Identifier.Skin;
-public sealed class SkinTypeIdentifier : ISkinTypeIdentifier
+public sealed class SkinTypeIdentifier(IImageUtilities imageUtilities) : ISkinTypeIdentifier
 {
-    private readonly IImageUtilities _imageUtilities;
-    public SkinTypeIdentifier(IImageUtilities imageUtilities)
-    {
-        _imageUtilities = imageUtilities;
-    }
+    private readonly IImageUtilities _imageUtilities = imageUtilities;
 
     public SkinType Identify(ReadOnlySpan<byte> skinBytes)
     {

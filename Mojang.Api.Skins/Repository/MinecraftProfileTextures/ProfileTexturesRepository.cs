@@ -4,80 +4,34 @@ using Mojang.Api.Skins.ImageService.General;
 using Mojang.Api.Skins.ImageService.Identifier.Cape;
 using Mojang.Api.Skins.ImageService.Identifier.Skin;
 using Mojang.Api.Skins.ImageService.SkinConverter;
+using Mojang.Api.Skins.Repository.Options;
 using Mojang.Api.Skins.Utilities.TextureCropper;
 using System.Text.Json;
 
 namespace Mojang.Api.Skins.Repository.MinecraftProfileTextures;
-public sealed class ProfileTexturesRepository : IProfileTexturesRepository
+public sealed class ProfileTexturesRepository(IHttpClientFactory httpClientFactory, IImageUtilities imageUtilities, IModernSkinConverter modernSkinConverter, ITextureCropper textureCropper, ICapeTextureIdentifier capeTextureIdentifier, ISkinTypeIdentifier skinTypeIdentifier, IClientOptionsRepository clientOptionsRepository) : IProfileTexturesRepository
 {
     private const string TexturesProperty = "textures";
     private const int LegacySkinHeight = 32;
 
-    private readonly SemaphoreSlim _semaphore = new(1, 1);
-    private ClientOptions _options = new();
-
-    public ClientOptions Options
-    {
-        get
-        {
-            _semaphore.Wait();
-            try
-            {
-                return _options;
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
-        }
-        set
-        {
-            _semaphore.Wait();
-            try
-            {
-                _options = value;
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
-        }
-    }
-
-
-    private readonly HttpClient _httpClient;
-    private readonly IModernSkinConverter _modernSkinConverter;
-    private readonly IImageUtilities _imageUtilities;
-    private readonly ITextureCropper _textureCropper;
-    private readonly ICapeTextureIdentifier _capeTextureIdentifier;
-    private readonly ISkinTypeIdentifier _skinTypeIdentifier;
-    public ProfileTexturesRepository(IHttpClientFactory httpClientFactory, IImageUtilities imageUtilities, IModernSkinConverter modernSkinConverter, ITextureCropper textureCropper, ICapeTextureIdentifier capeTextureIdentifier, ISkinTypeIdentifier skinTypeIdentifier)
-    {
-        _httpClient = httpClientFactory.CreateClient(nameof(Skins));
-        _imageUtilities = imageUtilities;
-        _modernSkinConverter = modernSkinConverter;
-        _textureCropper = textureCropper;
-        _capeTextureIdentifier = capeTextureIdentifier;
-        _skinTypeIdentifier = skinTypeIdentifier;
-    }
-
-
+    private readonly IClientOptionsRepository _clientOptionsRepository = clientOptionsRepository;
+    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+    private readonly IModernSkinConverter _modernSkinConverter = modernSkinConverter;
+    private readonly IImageUtilities _imageUtilities = imageUtilities;
+    private readonly ITextureCropper _textureCropper = textureCropper;
+    private readonly ICapeTextureIdentifier _capeTextureIdentifier = capeTextureIdentifier;
+    private readonly ISkinTypeIdentifier _skinTypeIdentifier = skinTypeIdentifier;
     public async Task<SkinData> GetSkin(ProfileProperties profileProperties) => await FetchSkinBytes(profileProperties).ConfigureAwait(false);
     public async Task<CapeData?> GetCape(ProfileProperties profileProperties) => await FetchCapeBytes(profileProperties).ConfigureAwait(false);
 
     public SkinData GetSkinLocal(in byte[] skinBytes)
     {
-        var textureSize = _imageUtilities.CalculateSize((ReadOnlySpan<byte>)skinBytes.AsSpan());
-        _semaphore.Wait();
-        try
-        {
-            if (_options.ConvertLegacySkin && textureSize.Height == 32)
-                return CreateSkinData(_modernSkinConverter.ConvertToModernSkin(skinBytes));
-        }
-        finally
-        {
-            _semaphore.Release();
-        }
+        var options = _clientOptionsRepository.GetOptions();
+
+        var textureSize = _imageUtilities.CalculateSize(skinBytes);
+
+        if (options.ConvertLegacySkin && textureSize.Height == 32)
+            return CreateSkinData(_modernSkinConverter.ConvertToModernSkin(skinBytes));
 
         return CreateSkinData(skinBytes);
     }
@@ -92,42 +46,28 @@ public sealed class ProfileTexturesRepository : IProfileTexturesRepository
 
         var skinKey = $"{profileTextureInformation.ProfileId}-skin";
 
+        var options = await _clientOptionsRepository.GetOptionsAsync().ConfigureAwait(false);
+        var cache = options.Cache;
+
         byte[]? skinImage;
-        if (Options.Cache is not null)
+        if (cache is not null)
         {
-            await _semaphore.WaitAsync();
-            try
-            {
-                skinImage = await _options.Cache!.RetrieveImageAsync(skinKey);
-                if (skinImage is not null)
-                    return CreateSkinData(skinImage);
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
+            skinImage = await cache.RetrieveImageAsync(skinKey);
+            if (skinImage is not null)
+                return CreateSkinData(skinImage);
         }
 
         skinImage = await FetchTextureBytes(profileTextureInformation.Textures.Skin.Url!).ConfigureAwait(false);
 
-        await _semaphore.WaitAsync();
-        try
+        if (options.ConvertLegacySkin)
         {
-            if (_options.ConvertLegacySkin)
-            {
-                var textureSize = _imageUtilities.CalculateSize((ReadOnlySpan<byte>)skinImage.AsSpan());
-                if (textureSize.Height == LegacySkinHeight)
-                    skinImage = _modernSkinConverter.ConvertToModernSkin(skinImage);
-            }
-
-
-            if (_options.Cache is not null)
-                await _options.Cache.CacheImageAsync(skinKey, skinImage);
+            var textureSize = _imageUtilities.CalculateSize(skinImage);
+            if (textureSize.Height == LegacySkinHeight)
+                skinImage = _modernSkinConverter.ConvertToModernSkin(skinImage);
         }
-        finally
-        {
-            _semaphore.Release();
-        }
+
+        if (cache is not null)
+            await cache.CacheImageAsync(skinKey, skinImage).ConfigureAwait(false);
 
         var skinData = CreateSkinData(skinImage);
         skinData.TextureUrl = profileTextureInformation.Textures.Skin.Url;
@@ -141,35 +81,22 @@ public sealed class ProfileTexturesRepository : IProfileTexturesRepository
             return null;
 
         var playerCapeKey = $"{profileTextureInformation.ProfileId}-cape";
+        var options = await _clientOptionsRepository.GetOptionsAsync().ConfigureAwait(false);
+        var cache = options.Cache;
+
         byte[]? cachedCapeBytes;
 
-        await _semaphore.WaitAsync();
-        try
+        if (cache is not null)
         {
-            if (_options.Cache is not null)
-            {
-                cachedCapeBytes = await _options.Cache!.RetrieveImageAsync(playerCapeKey);
-                if (cachedCapeBytes is not null)
-                    return CreateCapeData(cachedCapeBytes);
-            }
-        }
-        finally
-        {
-            _semaphore.Release();
+            cachedCapeBytes = await cache.RetrieveImageAsync(playerCapeKey).ConfigureAwait(false);
+            if (cachedCapeBytes is not null)
+                return CreateCapeData(cachedCapeBytes);
         }
 
         var capeBytes = await FetchTextureBytes(profileTextureInformation.Textures.Cape.Url!).ConfigureAwait(false);
 
-        await _semaphore.WaitAsync();
-        try
-        {
-            if (_options.Cache is not null)
-                await _options.Cache.CacheImageAsync(playerCapeKey, capeBytes);
-        }
-        finally
-        {
-            _semaphore.Release();
-        }
+        if (cache is not null)
+            await cache.CacheImageAsync(playerCapeKey, capeBytes).ConfigureAwait(false);
 
         var capeData = CreateCapeData(capeBytes);
         capeData.TextureUrl = profileTextureInformation.Textures.Cape.Url;
@@ -192,7 +119,7 @@ public sealed class ProfileTexturesRepository : IProfileTexturesRepository
 
         return new SkinData(_textureCropper, _imageUtilities)
         {
-            TextureSize = _imageUtilities.CalculateSize((ReadOnlySpan<byte>)skinBytes.AsSpan()),
+            TextureSize = _imageUtilities.CalculateSize(skinBytes),
             TextureBytes = skinBytes,
             SkinType = skinType
         };
@@ -203,7 +130,8 @@ public sealed class ProfileTexturesRepository : IProfileTexturesRepository
         if (string.IsNullOrEmpty(textureUrl))
             throw new ArgumentException("Texture URL is missing or empty.", nameof(textureUrl));
 
-        var response = await _httpClient.GetAsync(textureUrl).ConfigureAwait(false);
+        using var httpClient = _httpClientFactory.CreateClient(nameof(Skins));
+        var response = await httpClient.GetAsync(textureUrl).ConfigureAwait(false);
         if (!response.IsSuccessStatusCode)
             throw new HttpRequestException($"Failed to fetch texture. Status: {response.StatusCode}, Reason: {response.ReasonPhrase}");
 

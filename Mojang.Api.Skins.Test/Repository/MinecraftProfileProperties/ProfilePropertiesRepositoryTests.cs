@@ -9,17 +9,17 @@ using System.Net.Http.Json;
 namespace Mojang.Api.Skins.Test.Repository.MinecraftProfileProperties;
 public class ProfilePropertiesRepositoryTests
 {
-    private readonly Mock<ICache> _mockCache = new Mock<ICache>();
-    private ProfileProperties _profileProperties = new ProfileProperties
+    private readonly Mock<ICache> _mockCache = new();
+    private readonly ProfileProperties _profileProperties = new()
     {
         Name = "FakePlayer",
         Id = Guid.NewGuid(),
-        Properties = new ProfileProperty[] {
+        Properties = [
             new ProfileProperty() {
                 Name = "textures",
                 Value = "ewogICJ0aW1lc3RhbXAiIDogMTcwNTI0MDM4NTE1MSwKICAicHJvZmlsZUlkIiA6ICJlZGM2MzE5YjQ5NjM0ZDhmYmZkNTI1N2QxNzg5N2I0NSIsCiAgInByb2ZpbGVOYW1lIiA6ICJDd2lzdFNpbHYzciIsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS83ZTNjNWQ1MTM4MTE1YTRmNjBjYTRmMGMwMTEyZjk3NmFmYmJjZjk3MGNmY2Y5ZWM1NDk0NDMyNTQ1Njg0NWIxIgogICAgfSwKICAgICJDQVBFIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS8yMzQwYzBlMDNkZDI0YTExYjE1YThiMzNjMmE3ZTllMzJhYmIyMDUxYjI0ODFkMGJhN2RlZmQ2MzVjYTdhOTMzIgogICAgfQogIH0KfQ=="
             }
-        }
+        ]
     };
 
     [Fact]
@@ -122,11 +122,10 @@ public class ProfilePropertiesRepositoryTests
     {
         var fakeHandler = new FakeHttpMessageHandler(httpResponseMessage);
         var httpClientFactory = new MockHttpClientFactory(fakeHandler);
+        var mockClientOptionsRepository = new MockClientOptionsRepository();
+        mockClientOptionsRepository.Options.Cache = cacheMock?.Object;
 
-        var repository = new ProfilePropertiesRepository(httpClientFactory);
-
-        if (cacheMock is not null)
-            repository.Options.Cache = cacheMock.Object;
+        var repository = new ProfilePropertiesRepository(httpClientFactory, mockClientOptionsRepository);
 
         return repository;
     }

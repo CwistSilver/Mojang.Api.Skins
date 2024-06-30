@@ -5,15 +5,10 @@ using System.Drawing;
 using System.Numerics;
 
 namespace Mojang.Api.Skins.ImageService.SkinConverter;
-public sealed class ModernSkinConverter : IModernSkinConverter
+public sealed class ModernSkinConverter(IImageUtilities imageUtilities, ITextureCropper skinPartCropper) : IModernSkinConverter
 {
-    private readonly IImageUtilities _imageUtilities;
-    private readonly ITextureCropper _skinPartCropper;
-    public ModernSkinConverter(IImageUtilities imageUtilities, ITextureCropper skinPartCropper)
-    {
-        _imageUtilities = imageUtilities;
-        _skinPartCropper = skinPartCropper;
-    }
+    private readonly IImageUtilities _imageUtilities = imageUtilities;
+    private readonly ITextureCropper _skinPartCropper = skinPartCropper;
 
     public byte[] ConvertToModernSkin(byte[] skinDataBytes)
     {
@@ -71,5 +66,5 @@ public sealed class ModernSkinConverter : IModernSkinConverter
 
     }
 
-    private SkinPartData CreateNewPartFrom(List<SkinPartData> legacySkinParts, SkinPart copyFrom, SkinPart toCreate) => new SkinPartData(_imageUtilities) { SkinPart = toCreate, TextureBytes = legacySkinParts.Find(skinPartData => skinPartData.SkinPart == copyFrom)!.TextureBytes };
+    private SkinPartData CreateNewPartFrom(List<SkinPartData> legacySkinParts, SkinPart copyFrom, SkinPart toCreate) => new(_imageUtilities) { SkinPart = toCreate, TextureBytes = legacySkinParts.Find(skinPartData => skinPartData.SkinPart == copyFrom)!.TextureBytes };
 }

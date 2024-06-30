@@ -7,33 +7,22 @@ using Mojang.Api.Skins.ImageService.SkinConverter;
 using Mojang.Api.Skins.Repository.MinecraftProfileInformation;
 using Mojang.Api.Skins.Repository.MinecraftProfileProperties;
 using Mojang.Api.Skins.Repository.MinecraftProfileTextures;
+using Mojang.Api.Skins.Repository.Options;
 using Mojang.Api.Skins.Utilities;
 using Mojang.Api.Skins.Utilities.TextureCropper;
 
 namespace Mojang.Api.Skins;
 public sealed class SkinsClient : ISkinsClient
 {
-    private readonly object _lock = new();
-    private ClientOptions _options = ClientOptions.Default;
     public ClientOptions Options
     {
         get
         {
-            lock (_lock)
-                return _options;
+            return _clientOptionsRepository.GetOptions();
         }
         set
         {
-            if (value is null)
-                return;
-
-            lock (_lock)
-            {
-                _options = value;
-                _profileInformationRepository.Options = _options;
-                _profilePropertiesRepository.Options = _options;
-                _profileTexturesRepository.Options = _options;
-            }
+            _clientOptionsRepository.SetOptionsAsync(value).ConfigureAwait(false);
         }
     }
 
@@ -46,17 +35,15 @@ public sealed class SkinsClient : ISkinsClient
     private readonly IModernSkinConverter _modernSkinConverter;
     private readonly ISkinTypeIdentifier _skinTypeIdentifier;
     private readonly IHttpClientFactory? _httpClientFactory;
+    private readonly IClientOptionsRepository _clientOptionsRepository;
 
-    public SkinsClient(IProfileInformationRepository profileInformationRepository, IProfilePropertiesRepository profilePropertiesRepository, IProfileTexturesRepository profileTexturesRepository, ICapeTextureIdentifier capeTextureIdentifier, IImageUtilities imageUtilities, ITextureCropper skinPartCropper, IModernSkinConverter modernSkinConverter, ISkinTypeIdentifier skinTypeIdentifier)
+    public SkinsClient(IProfileInformationRepository profileInformationRepository, IProfilePropertiesRepository profilePropertiesRepository, IProfileTexturesRepository profileTexturesRepository, ICapeTextureIdentifier capeTextureIdentifier, IImageUtilities imageUtilities, ITextureCropper skinPartCropper, IModernSkinConverter modernSkinConverter, ISkinTypeIdentifier skinTypeIdentifier, IClientOptionsRepository clientOptionsRepository)
     {
+        _clientOptionsRepository = clientOptionsRepository;
+        _clientOptionsRepository.SetOptionsAsync(ClientOptions.Default).ConfigureAwait(false);
         _profileInformationRepository = profileInformationRepository;
-        _profileInformationRepository.Options = Options;
-
         _profilePropertiesRepository = profilePropertiesRepository;
-        _profilePropertiesRepository.Options = Options;
-
         _profileTexturesRepository = profileTexturesRepository;
-        _profileTexturesRepository.Options = Options;
 
         _capeTextureIdentifier = capeTextureIdentifier;
         _imageUtilities = imageUtilities;
@@ -67,15 +54,18 @@ public sealed class SkinsClient : ISkinsClient
 
     public SkinsClient()
     {
+        _clientOptionsRepository = new ClientOptionsRepository();
+        _clientOptionsRepository.SetOptionsAsync(ClientOptions.Default).ConfigureAwait(false);
+
         _httpClientFactory = new DefaultHttpClientFactory();
         _imageUtilities = new SkiaImageUtilities();
         _capeTextureIdentifier = new CapeTextureIdentifier(_imageUtilities);
         _skinTypeIdentifier = new SkinTypeIdentifier(_imageUtilities);
         _textureCropper = new TextureCropper(_imageUtilities);
         _modernSkinConverter = new ModernSkinConverter(_imageUtilities, _textureCropper);
-        _profileInformationRepository = new ProfileInformationRepository(_httpClientFactory) { Options = Options };
-        _profilePropertiesRepository = new ProfilePropertiesRepository(_httpClientFactory) { Options = Options };
-        _profileTexturesRepository = new ProfileTexturesRepository(_httpClientFactory, _imageUtilities, _modernSkinConverter, _textureCropper, _capeTextureIdentifier, _skinTypeIdentifier) { Options = Options };
+        _profileInformationRepository = new ProfileInformationRepository(_httpClientFactory, _clientOptionsRepository);
+        _profilePropertiesRepository = new ProfilePropertiesRepository(_httpClientFactory, _clientOptionsRepository);
+        _profileTexturesRepository = new ProfileTexturesRepository(_httpClientFactory, _imageUtilities, _modernSkinConverter, _textureCropper, _capeTextureIdentifier, _skinTypeIdentifier, _clientOptionsRepository);
     }
 
     public async Task<PlayerData> GetAsync(string playerName)

@@ -9,8 +9,8 @@ using System.Net.Http.Json;
 namespace Mojang.Api.Skins.Test.Repository.MinecraftProfileInformation;
 public class ProfileInformationRepositoryTests
 {
-    private readonly Mock<ICache> _mockCache = new Mock<ICache>();
-    private readonly ProfileInformation _profileInformation = new ProfileInformation() { Id = Guid.NewGuid(), Name = "FakePlayer" };
+    private readonly Mock<ICache> _mockCache = new();
+    private readonly ProfileInformation _profileInformation = new() { Id = Guid.NewGuid(), Name = "FakePlayer" };
 
     [Fact]
     public async Task Get_ReturnsProfileInformation()
@@ -106,11 +106,10 @@ public class ProfileInformationRepositoryTests
     {
         var fakeHandler = new FakeHttpMessageHandler(httpResponseMessage);
         var httpClientFactory = new MockHttpClientFactory(fakeHandler);
+        var mockClientOptionsRepository = new MockClientOptionsRepository();
+        mockClientOptionsRepository.Options.Cache = cacheMock?.Object;
 
-        var repository = new ProfileInformationRepository(httpClientFactory);
-
-        if (cacheMock is not null)
-            repository.Options.Cache = cacheMock.Object;
+        var repository = new ProfileInformationRepository(httpClientFactory, mockClientOptionsRepository);
 
         return repository;
     }

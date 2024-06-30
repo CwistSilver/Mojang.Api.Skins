@@ -30,7 +30,7 @@ public sealed class CapeTextureIdentifier : ICapeTextureIdentifier
     private static readonly Memory<byte> valentine = new byte[] { 24, 249, 220, 71, 172, 163, 204, 42, 129, 13, 255, 10, 75, 18, 170, 169, 86, 103, 178, 75, 254, 234, 158, 46, 53, 123, 20, 128, 148, 132, 75, 161 };
     private static readonly Memory<byte> vanilla = new byte[] { 208, 229, 138, 231, 190, 174, 130, 53, 120, 7, 160, 136, 184, 92, 70, 40, 7, 215, 138, 216, 52, 163, 28, 150, 125, 188, 145, 157, 133, 25, 52, 68 };
 
-    private readonly List<(Memory<byte>, string)> _capeIdentitiesList = new();
+    private readonly List<(Memory<byte>, string)> _capeIdentitiesList = [];
 
     private readonly IImageUtilities _imageUtilities;
     public CapeTextureIdentifier(IImageUtilities imageUtilities)

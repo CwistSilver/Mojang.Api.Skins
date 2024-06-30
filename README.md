@@ -29,6 +29,16 @@ The library utilizes **'LiteDBCache'** by default, for efficient caching:
 - Recognizes duplicate textures across different players and stores a single instance, reducing storage requirements.
 - Suitable for scenarios where multiple players might share the same skin or cape texture.
 
+### Using the Memory Cache
+For scenarios where in-memory caching is preferred, you can use the MemoryCacheWrapper:
+```cs
+var client = new SkinsClient();
+
+var cacheOptions = new MemoryCacheOptions() { CompactionPercentage = 0.50 };
+var cache = new MemoryCache(cacheOptions);
+client.Options.Cache = new MemoryCacheWrapper(cache);
+```
+
 ### Custom Cache Implementation
 Implement the **'ICache'** interface to create and use a custom cache:
 
@@ -150,6 +160,7 @@ Contributions to Mojang.Api.Skins are welcome. Follow these steps to contribute:
 **'Mojang.Api.Skins'** utilizes the following packages, which need to be included as dependencies in your project:
 
 - [LiteDB](https://github.com/mbdavid/LiteDB)
+- [Microsoft.Extensions.Caching.Abstractions](https://www.nuget.org/packages/Microsoft.Extensions.Caching.Abstractions/)
 - [Microsoft.Extensions.Http](https://github.com/dotnet/runtime/tree/main/src/libraries/Microsoft.Extensions.Http)
 - [Microsoft.Extensions.Http.Polly](https://www.nuget.org/packages/Microsoft.Extensions.Http.Polly)
 - [SkiaSharp](https://github.com/mono/SkiaSharp)

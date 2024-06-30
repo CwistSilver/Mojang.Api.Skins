@@ -11,25 +11,25 @@ public static class TextureComponentsDictionary
     /// A dictionary containing mappings for each part of a classic skin to its corresponding texture region.
     /// </summary>
     public static Dictionary<SkinPart, Rectangle> ClassicMappings => _classicMappings;
-    private static readonly Dictionary<SkinPart, Rectangle> _classicMappings = new();
+    private static readonly Dictionary<SkinPart, Rectangle> _classicMappings = [];
 
     /// <summary>
     /// A dictionary containing mappings for each part of a slim skin to its corresponding texture region.
     /// </summary>
     public static Dictionary<SkinPart, Rectangle> SlimMappings => _slimMappings;
-    private static readonly Dictionary<SkinPart, Rectangle> _slimMappings = new();
+    private static readonly Dictionary<SkinPart, Rectangle> _slimMappings = [];
 
     /// <summary>
     /// A dictionary containing mappings for legacy skin parts to their corresponding texture regions.
     /// </summary>
     public static Dictionary<SkinPart, Rectangle> LegacySkinParts => _legacySkinParts;
-    private static readonly Dictionary<SkinPart, Rectangle> _legacySkinParts = new();
+    private static readonly Dictionary<SkinPart, Rectangle> _legacySkinParts = [];
 
     /// <summary>
     /// A dictionary containing mappings for each part of a cape to its corresponding texture region.
     /// </summary>
     public static Dictionary<CapePart, Rectangle> CapeMappings => _capeMappings;
-    private static readonly Dictionary<CapePart, Rectangle> _capeMappings = new();
+    private static readonly Dictionary<CapePart, Rectangle> _capeMappings = [];
 
     private static readonly Rectangle Cape_Left = new(0, 1, 1, 16);
     private static readonly Rectangle Cape_Front = new(1, 1, 10, 16);

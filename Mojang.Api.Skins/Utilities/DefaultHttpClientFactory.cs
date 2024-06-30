@@ -3,15 +3,32 @@
 namespace Mojang.Api.Skins.Utilities;
 public class DefaultHttpClientFactory : IHttpClientFactory
 {
-    private static readonly HttpClient _httpClient;
+    private static readonly SemaphoreSlim _semaphoreSlim = new(1, 1);
+    private PolicyHttpMessageHandler? _cachedHttpMessageHandler;
 
-    static DefaultHttpClientFactory()
+    private HttpMessageHandler CreateHandler()
     {
-        var handler = new HttpClientHandler();
-        var policyHandler = new PolicyHttpMessageHandler(HttpClientExtension.GetRetryPolicy()) { InnerHandler = handler };
+        if (_cachedHttpMessageHandler is not null)
+            return _cachedHttpMessageHandler;
 
-        _httpClient = new HttpClient(policyHandler);
-        _httpClient.AddSignature();
+        _semaphoreSlim.Wait();
+        try
+        {
+            if (_cachedHttpMessageHandler is not null)
+                return _cachedHttpMessageHandler;
+
+            var httpClientHandler = new HttpClientHandler();
+            _cachedHttpMessageHandler = new PolicyHttpMessageHandler(HttpClientExtension.GetRetryPolicy())
+            {
+                InnerHandler = httpClientHandler
+            };
+        }
+        finally
+        {
+            _semaphoreSlim.Release();
+        }
+
+        return _cachedHttpMessageHandler;
     }
 
     public HttpClient CreateClient(string name)
@@ -19,6 +36,10 @@ public class DefaultHttpClientFactory : IHttpClientFactory
         if (nameof(Skins) != name)
             throw new Exception($"This HttpClientFactory only contains '{nameof(Skins)}'.");
 
-        return _httpClient;
+        var handler = CreateHandler();
+        var httpClient = new HttpClient(handler, disposeHandler: false);
+        httpClient.AddSignature();
+
+        return httpClient;
     }
 }

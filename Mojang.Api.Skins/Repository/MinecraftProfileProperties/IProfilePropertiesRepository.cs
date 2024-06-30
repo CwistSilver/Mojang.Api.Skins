@@ -1,5 +1,4 @@
-﻿using Mojang.Api.Skins.Data;
-using Mojang.Api.Skins.Data.MojangApi;
+﻿using Mojang.Api.Skins.Data.MojangApi;
 
 namespace Mojang.Api.Skins.Repository.MinecraftProfileProperties;
 
@@ -8,11 +7,6 @@ namespace Mojang.Api.Skins.Repository.MinecraftProfileProperties;
 /// </summary>
 public interface IProfilePropertiesRepository
 {
-    /// <summary>
-    /// Options for client configurations.
-    /// </summary>
-    ClientOptions Options { get; set; }
-
     /// <summary>
     /// Asynchronously retrieves the properties of a player's profile using their UUID.
     /// </summary>

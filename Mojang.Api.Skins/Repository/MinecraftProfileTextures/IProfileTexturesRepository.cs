@@ -8,11 +8,6 @@ namespace Mojang.Api.Skins.Repository.MinecraftProfileTextures;
 public interface IProfileTexturesRepository
 {
     /// <summary>
-    /// Options for client configurations.
-    /// </summary>
-    ClientOptions Options { get; set; }
-
-    /// <summary>
     /// Asynchronously retrieves the cape data associated with a given player's profile.
     /// </summary>
     /// <param name="profileProperties">The properties of the player's profile.</param>

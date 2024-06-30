@@ -7,6 +7,7 @@ using Mojang.Api.Skins.ImageService.SkinConverter;
 using Mojang.Api.Skins.Repository.MinecraftProfileInformation;
 using Mojang.Api.Skins.Repository.MinecraftProfileProperties;
 using Mojang.Api.Skins.Repository.MinecraftProfileTextures;
+using Mojang.Api.Skins.Test.Mocks;
 using Mojang.Api.Skins.Utilities.TextureCropper;
 using Moq;
 using System.Drawing;
@@ -37,6 +38,7 @@ public class SkinsClientTests
     private readonly Mock<ITextureCropper> _textureCropperMock;
     private readonly Mock<IModernSkinConverter> _modernSkinConverterMock;
     private readonly Mock<ISkinTypeIdentifier> _skinTypeIdentifierMock;
+    private readonly MockClientOptionsRepository _mockClientOptionsRepository;
     public SkinsClientTests()
     {
         _profileInformationRepositoryMock = new Mock<IProfileInformationRepository>();
@@ -47,6 +49,7 @@ public class SkinsClientTests
         _textureCropperMock = new Mock<ITextureCropper>();
         _modernSkinConverterMock = new Mock<IModernSkinConverter>();
         _skinTypeIdentifierMock = new Mock<ISkinTypeIdentifier>();
+        _mockClientOptionsRepository = new MockClientOptionsRepository();
     }
 
     [Fact]
@@ -140,5 +143,5 @@ public class SkinsClientTests
         _profileTexturesRepositoryMock.Verify(repo => repo.GetCapeLocal(_defaultCapeData.TextureBytes), Times.Once());
     }
 
-    private SkinsClient CreateClient() => new(_profileInformationRepositoryMock.Object, _profilePropertiesRepositoryMock.Object, _profileTexturesRepositoryMock.Object, _capeTextureIdentifierMock.Object, _imageUtilitiesMock.Object, _textureCropperMock.Object, _modernSkinConverterMock.Object, _skinTypeIdentifierMock.Object);
+    private SkinsClient CreateClient() => new(_profileInformationRepositoryMock.Object, _profilePropertiesRepositoryMock.Object, _profileTexturesRepositoryMock.Object, _capeTextureIdentifierMock.Object, _imageUtilitiesMock.Object, _textureCropperMock.Object, _modernSkinConverterMock.Object, _skinTypeIdentifierMock.Object, _mockClientOptionsRepository);
 }

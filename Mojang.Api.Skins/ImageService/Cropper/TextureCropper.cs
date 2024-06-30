@@ -3,10 +3,9 @@ using Mojang.Api.Skins.ImageService.General;
 using System.Drawing;
 
 namespace Mojang.Api.Skins.Utilities.TextureCropper;
-public sealed class TextureCropper : ITextureCropper
+public sealed class TextureCropper(IImageUtilities imageUtilities) : ITextureCropper
 {
-    private readonly IImageUtilities _imageUtilities;
-    public TextureCropper(IImageUtilities imageUtilities) => _imageUtilities = imageUtilities;
+    private readonly IImageUtilities _imageUtilities = imageUtilities;
 
     public SkinPartData[] Cut(SkinData skinData, IEnumerable<SkinPart> skinParts)
     {
@@ -40,7 +39,7 @@ public sealed class TextureCropper : ITextureCropper
             index++;
         }
 
-        return skinPartDatas.ToArray();
+        return skinPartDatas;
     }
 
     public SkinPartData Cut(SkinData skinData, SkinPart skinPart)
@@ -92,7 +91,7 @@ public sealed class TextureCropper : ITextureCropper
             index++;
         }
 
-        return capePartDatas.ToArray();
+        return capePartDatas;
     }
 
     public CapePartData Cut(CapeData capeData, CapePart capePart)

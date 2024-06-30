@@ -12,20 +12,21 @@ using System.Net;
 namespace Mojang.Api.Skins.Test.Repository.MinecraftProfileTextures;
 public class ProfileTexturesRepositoryTests
 {
-    private ProfileProperties _profileProperties = new ProfileProperties
+    private readonly ProfileProperties _profileProperties = new()
     {
         Name = "FakePlayer",
         Id = Guid.NewGuid(),
-        Properties = new ProfileProperty[] {
+        Properties = [
             new ProfileProperty() {
                 Name = "textures",
                 Value = "ewogICJ0aW1lc3RhbXAiIDogMTcwNTI0MDM4NTE1MSwKICAicHJvZmlsZUlkIiA6ICJlZGM2MzE5YjQ5NjM0ZDhmYmZkNTI1N2QxNzg5N2I0NSIsCiAgInByb2ZpbGVOYW1lIiA6ICJDd2lzdFNpbHYzciIsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS83ZTNjNWQ1MTM4MTE1YTRmNjBjYTRmMGMwMTEyZjk3NmFmYmJjZjk3MGNmY2Y5ZWM1NDk0NDMyNTQ1Njg0NWIxIgogICAgfSwKICAgICJDQVBFIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS8yMzQwYzBlMDNkZDI0YTExYjE1YThiMzNjMmE3ZTllMzJhYmIyMDUxYjI0ODFkMGJhN2RlZmQ2MzVjYTdhOTMzIgogICAgfQogIH0KfQ=="
             }
-        }
+        ]
     };
-    private SkinData _defaultSkinData = new SkinData { SkinType = SkinType.Slim, TextureBytes = new byte[] { 1, 2, 3, 4, 5, 6 }, TextureSize = new Size(64, 64) };
-    private CapeData _defaultCapeData = new CapeData { CapeName = "TestCape", TextureBytes = new byte[] { 1, 2, 3 }, TextureSize = new Size(64, 32) };
+    private readonly SkinData _defaultSkinData = new() { SkinType = SkinType.Slim, TextureBytes = [1, 2, 3, 4, 5, 6], TextureSize = new Size(64, 64) };
+    private readonly CapeData _defaultCapeData = new() { CapeName = "TestCape", TextureBytes = [1, 2, 3], TextureSize = new Size(64, 32) };
 
+    private readonly MockClientOptionsRepository _mockClientOptionsRepository;
     private readonly MockImageUtilities _mockImageUtilities;
     private readonly Mock<IModernSkinConverter> _modernSkinConverterMock;
     private readonly Mock<ITextureCropper> _textureCropperMock;
@@ -33,6 +34,7 @@ public class ProfileTexturesRepositoryTests
     private readonly MockSkinTypeIdentifier _mockSkinTypeIdentifier;
     public ProfileTexturesRepositoryTests()
     {
+        _mockClientOptionsRepository = new MockClientOptionsRepository();
         _mockImageUtilities = new MockImageUtilities();
         _modernSkinConverterMock = new Mock<IModernSkinConverter>();
         _textureCropperMock = new Mock<ITextureCropper>();
@@ -66,7 +68,7 @@ public class ProfileTexturesRepositoryTests
         var fakeResponse = new HttpResponseMessage
         {
             StatusCode = HttpStatusCode.OK,
-            Content = new ByteArrayContent(Array.Empty<byte>())
+            Content = new ByteArrayContent([])
         };
 
         var cacheMock = new Mock<ICache>();
@@ -109,12 +111,12 @@ public class ProfileTexturesRepositoryTests
     public async Task GetSkin_ReturnsConvertedSkinData()
     {
         // Arrange
-        var expectedSkinData = new SkinData { SkinType = SkinType.Slim, TextureBytes = new byte[] { 1, 2, 3, 4, 5, 6 }, TextureSize = new Size(64, 32) };
+        var expectedSkinData = new SkinData { SkinType = SkinType.Slim, TextureBytes = [1, 2, 3, 4, 5, 6], TextureSize = new Size(64, 32) };
         var convertedSkinBytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
         _modernSkinConverterMock.Setup(r => r.ConvertToModernSkin(It.IsAny<byte[]>())).Returns(convertedSkinBytes);
 
         var repository = SetupRepository(expectedSkinData);
-        repository.Options.ConvertLegacySkin = true;
+        _mockClientOptionsRepository.Options.ConvertLegacySkin = true;
 
         // Act
         var result = await repository.GetSkin(_profileProperties);
@@ -150,7 +152,7 @@ public class ProfileTexturesRepositoryTests
         var fakeResponse = new HttpResponseMessage
         {
             StatusCode = HttpStatusCode.OK,
-            Content = new ByteArrayContent(Array.Empty<byte>())
+            Content = new ByteArrayContent([])
         };
 
         var cacheMock = new Mock<ICache>();
@@ -226,12 +228,12 @@ public class ProfileTexturesRepositoryTests
     public void GetSkin_ReturnsConvertedLocalSkinData()
     {
         // Arrange
-        var expectedSkinData = new SkinData { SkinType = SkinType.Slim, TextureBytes = new byte[] { 1, 2, 3, 4, 5, 6 }, TextureSize = new Size(64, 32) };
+        var expectedSkinData = new SkinData { SkinType = SkinType.Slim, TextureBytes = [1, 2, 3, 4, 5, 6], TextureSize = new Size(64, 32) };
         var convertedSkinBytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
         _modernSkinConverterMock.Setup(r => r.ConvertToModernSkin(It.IsAny<byte[]>())).Returns(convertedSkinBytes);
 
         var repository = SetupRepository(expectedSkinData);
-        repository.Options.ConvertLegacySkin = true;
+        _mockClientOptionsRepository.Options.ConvertLegacySkin = true;
 
         // Act
         var result = repository.GetSkinLocal(expectedSkinData.TextureBytes);
@@ -255,11 +257,9 @@ public class ProfileTexturesRepositoryTests
         var fakeHandler = new FakeHttpMessageHandler(httpResponseMessage);
         var httpClientFactory = new MockHttpClientFactory(fakeHandler);
         _mockImageUtilities.SetCalculateSizeReturnValue(textureData.TextureSize);
+        _mockClientOptionsRepository.Options.Cache = cacheMock?.Object;
 
-        var repository = new ProfileTexturesRepository(httpClientFactory, _mockImageUtilities, _modernSkinConverterMock.Object, _textureCropperMock.Object, _capeTextureIdentifierMock, _mockSkinTypeIdentifier);
-
-        if (cacheMock is not null)
-            repository.Options.Cache = cacheMock.Object;
+        var repository = new ProfileTexturesRepository(httpClientFactory, _mockImageUtilities, _modernSkinConverterMock.Object, _textureCropperMock.Object, _capeTextureIdentifierMock, _mockSkinTypeIdentifier, _mockClientOptionsRepository);
 
         return repository;
     }

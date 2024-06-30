@@ -1,48 +1,31 @@
-﻿using Mojang.Api.Skins.Data;
-using Mojang.Api.Skins.Data.MojangApi;
+﻿using Mojang.Api.Skins.Data.MojangApi;
+using Mojang.Api.Skins.Repository.Options;
 using System.Net.Http.Json;
 
 namespace Mojang.Api.Skins.Repository.MinecraftProfileInformation;
-public sealed class ProfileInformationRepository : IProfileInformationRepository
+public sealed class ProfileInformationRepository(IHttpClientFactory httpClientFactory, IClientOptionsRepository clientOptionsRepository) : IProfileInformationRepository
 {
     private const string MinecraftProfilesURL = "https://api.mojang.com/users/profiles/minecraft/{0}";
 
-    private readonly object _lock = new();
-    private ClientOptions _options = new();
-    public ClientOptions Options
-    {
-        get
-        {
-            lock (_lock)
-                return _options;
-        }
-        set
-        {
-            lock (_lock)
-                _options = value;
-        }
-    }
-
-
-    private readonly HttpClient _httpClient;
-    public ProfileInformationRepository(IHttpClientFactory httpClientFactory) => _httpClient = httpClientFactory.CreateClient(nameof(Skins));
+    private readonly IClientOptionsRepository _clientOptionsRepository = clientOptionsRepository;
+    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
 
     public async Task<ProfileInformation> Get(string playerName)
     {
         string cacheKey = $"ProfileInformation-{playerName}";
+        var options = await _clientOptionsRepository.GetOptionsAsync().ConfigureAwait(false);
+        var cache = options.Cache;
 
-
-        if (Options.Cache is not null)
+        if (cache is not null)
         {
-            Guid cachedPlayerUUID;
-            lock (_lock)
-                cachedPlayerUUID = Options.Cache.Get<Guid>(cacheKey);
+            Guid cachedPlayerUUID = cache.Get<Guid>(cacheKey);
 
             if (cachedPlayerUUID != default)
                 return new ProfileInformation() { Name = playerName, Id = cachedPlayerUUID };
         }
 
-        var response = await _httpClient.GetAsync(string.Format(MinecraftProfilesURL, playerName)).ConfigureAwait(false);
+        using var httpClient = _httpClientFactory.CreateClient(nameof(Skins));
+        var response = await httpClient.GetAsync(string.Format(MinecraftProfilesURL, playerName)).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -53,8 +36,7 @@ public sealed class ProfileInformationRepository : IProfileInformationRepository
 
         var profileInformation = await response.Content.ReadFromJsonAsync(JsonContext.Default.ProfileInformation).ConfigureAwait(false);
 
-        lock (_lock)
-            Options.Cache?.AddOrSet(cacheKey, profileInformation!.Id);
+        cache?.AddOrSet(cacheKey, profileInformation!.Id);
 
         return profileInformation!;
     }
