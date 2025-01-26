@@ -35,12 +35,12 @@
 
 	<ItemGroup>
 		<PackageReference Include="LiteDB" Version="5.0.21" />
-		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Http.Polly" Version="8.0.7" />
-		<PackageReference Include="SkiaSharp" Version="2.88.8" />
-		<PackageReference Include="System.Net.Http.Json" Version="8.0.0" />
-		<PackageReference Include="System.Text.Json" Version="8.0.4" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Http.Polly" Version="9.0.1" />
+		<PackageReference Include="SkiaSharp" Version="3.116.1" />
+		<PackageReference Include="System.Net.Http.Json" Version="9.0.1" />
+		<PackageReference Include="System.Text.Json" Version="9.0.1" />
 	</ItemGroup>
 
 </Project>
